@@ -1,0 +1,31 @@
+version: '3'
+
+networks:
+  cicdnet:
+
+volumes:
+  bitbucketVolume:
+  jenkins_home:
+
+services:
+  bitbucket:
+    # Should use a tag, was running 7.3.1 but not seeing that tag
+    image: atlassian/bitbucket-server
+    volumes:
+      - bitbucketVolume:/var/atlassian/application-data/bitbucket
+    networks:
+      - cicdnet
+    ports:
+      - "7990:7990"
+      - "7999:7999"
+    expose:                     # to linked services, not host
+      - "7990"
+  jenkins:
+    image: jenkins/jenkins:lts
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    networks:
+      - cicdnet
+    ports:
+      - "8080:8080"
+      - "5000:5000"
