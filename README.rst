@@ -75,6 +75,16 @@ docker logs, create an eval license, and user.
 
 Customize the plugins to remove the ones you don't want.
 
+Config Jenkins so it knows its Docker IP in the URL, rather than
+``localhost``; otherwise it will create webooks on Bitbucket with
+``localhost`` which will cause the webhook to fail to connect to
+Jenkins.
+
+Jenkins -> manage Jenkins -> Configure System::
+
+  Jenkins URL: http://172.22.0.3:8080/
+
+
 In Jenkins -> Manage Jenkins -> Manage Plugins, pick tab Available and
 search for "Bitbucket Server Integration", then "Install without restart".
 
@@ -152,3 +162,26 @@ Jenkins with creds created. If you don't, make sure you saved your
 Pipeline so the Bitbucket plugin can create the webhook in Bitbucket
 Server.
 
+Check the webhook. If it has an Error for last response, View details.
+Mine had Response::
+
+  Unable to connect to the URL specified within the timeout, please
+  check the host and port are correct and that the URL is accessible
+  from the server running this request.
+
+If you go to the Request, we see::
+
+  URL endpoint: http://localhost:8080/bitbucket-server-webhook/trigger
+
+Oops, we can't have ``localhost`` since we're running in Docker:
+Bitbucket would be trying to send to itself.
+
+In Jenkins -> Manage Jenkins -> Bitbucket Server integration, verify
+we're not using localhost but the Docker IP in the URL: ok.
+
+In Jenkins -> manage Jenkins -> Base URL, make sure we specify the
+Jenkins Docker IP in the URL. I fixed this, then went to my Pipeline,
+hit Save, and verified on Bitbucket my webhook now has the proper URL,
+not localhost. Cool.
+
+Push code again to test the webhook.
