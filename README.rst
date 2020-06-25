@@ -123,8 +123,8 @@ incantation we need for our ``Jenkinsfile``.
 Generate Pipeline Script.
 It emits something obscure config info.
 
-Include it your Jenkinsfile like [the asterisks below are prefixed by
-backslash to protect them]::
+Include it your ``Jenkinsfile`` below; the asterisks below are prefixed by
+backslash to protect them here::
 
   node {
       stage "Checkout from Bitbucket"
@@ -139,4 +139,16 @@ backslash to protect them]::
   }
 
 
-Commit and push code.
+Go back to the Pipeline definition you were creating and hit Save.
+This will cause Jenkins use your creds to create a Bitbucket webhook.
+
+Commit and push code. This should trigger you webhook.
+
+Validate in Bitbucket
+---------------------
+
+In your project, Gear icon -> Webhooks. You should see one which
+Jenkins with creds created. If you don't, make sure you saved your
+Pipeline so the Bitbucket plugin can create the webhook in Bitbucket
+Server.
+
