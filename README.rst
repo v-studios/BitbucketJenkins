@@ -184,4 +184,6 @@ Jenkins Docker IP in the URL. I fixed this, then went to my Pipeline,
 hit Save, and verified on Bitbucket my webhook now has the proper URL,
 not localhost. Cool.
 
-Push code again to test the webhook.
+Push code again to test the webhook. Didn't even trigger. What?
+Delete the webhook.
+Jenkins Project Pipeline SAVE to recreate. Verify it's created in Bitbucket repo.
