@@ -50,9 +50,22 @@ Go to http://localhost:7990/ and create a user.
 
 Create a Project and Repository, push your code to it.
 
+Change the server's own URL from localhost to have the Docker IP
+address: Gear icon -> Server settings::
 
+  Base URL: http://172.22.0.2:7990/
 
-Create yourself an access key which Jenkins will need. Hit your face icon in the top left
+Create yourself an access key which Jenkins will need. Hit your face
+icon in the top left -> Manage Account -> Personal access tokens ->
+Create Token::
+
+  Token name:   BitbucketJenkins
+  Projects:     Admin
+  Repositories: Admin (inherited)
+  Expiry:       no
+
+Create and save the token: OTY5NDk1ODEwOTkzOjonbj/cbl2luKdJZfNuL77N0x+s
+
 
 Jenkins
 =======
@@ -65,29 +78,65 @@ Customize the plugins to remove the ones you don't want.
 In Jenkins -> Manage Jenkins -> Manage Plugins, pick tab Available and
 search for "Bitbucket Server Integration", then "Install without restart".
 
-Manage Jenkins -> Configure System -> Bitbucket Server integration ->
-Add a Bitbucket Server instance -> Instance details:
+Add our Bitbucket server with the same Docker IP based URL that we
+used to configure Bitbucket above. Manage Jenkins -> Configure System
+-> Bitbucket Server integration -> Add a Bitbucket Server instance ->
+Instance details::
 
-Instance name: bitbucket
-Instance URL: http://172.22.0.2/
-Personal access token: [create and select]
+  Instance name: bitbucket
+  Instance URL: http://172.22.0.2:7990/
+  Personal access token: 
+    Jenkins:
+      Domain: Global credentials
+      Kind: Bitbucket personal access token
+      Token: [paste the one you got from Bitbucket]
+      Description: ChrisBitbucket
+  Credentials (for build auth): none  [leave this empty for now]
+
+Test connection. If it can't connect, check your URL. If you can't
+auth, re-do the access token.
+
+Save.
 
 Jenkins project integration with Bitbucket
 ------------------------------------------
 
-Jenkins ->  New Item: samplecode, Pipeline.
+Jenkins ->  New Item: BitbucketJenkins, Pipeline.
 Configure
 [x] Bitbucket Server trigger after push
 Pipeline: Pipeline script from SCM.
 SCM: Bitbucket Server
-Credentials (for build auth)
+Credentials (for build auth): Add -> Jenkins::
+ Domain: Global credentials
+ Kind: username with password
+ Scope: GlobalUsername: use your Bitbucket username+password
+ Description: BitbucketPassword
+Bitbucket Server instance: bitbucket
+Project name: TriggerJenkins [should autocomplete if creds are good]
+Repository name: BitbucketJenkins
+Branches: \*/master, \*/develop, \*/feature/\*
+Script Path: Jenkinsfile
 
-TODO I htink I am missing something
+Pipeline Syntax: sample Step: bbs_checkout: BitBucketSCMStep Enter the
+same Bitbucket info and creds as before, so it will generate the
+incantation we need for our ``Jenkinsfile``.
+Generate Pipeline Script.
+It emits something obscure config info.
 
-samplecode
-==========
+Include it your Jenkinsfile like [the asterisks below are prefixed by
+backslash to protect them]::
 
-Doesn't really matter what it is, goal is to trigger Jenkins on commit
-to BitBucket. It should have a sane Jenkins file so we can see Jenkins
-go; plagiarize the one from avail_fe.
+  node {
+      stage "Checkout from Bitbucket"
 
+      bbs_checkout branches: [[name: '\*/master'], [name: '\*/develop'], [name: '\*/feature/\*']],
+        credentialsId: 'c1c86c01-e86c-4ee3-8d68-10e0dd0c8531',
+        id: '2390541b-8bee-4236-90e1-87f0cf20a74f',
+        mirrorName: '',
+        projectName: 'TriggerJenkins',
+        repositoryName: 'BitbucketJenkins',
+        serverId: '10e8046e-c1e7-463e-a38c-8416718eb2ea'
+  }
+
+
+Commit and push code.
