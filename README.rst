@@ -154,8 +154,8 @@ This will cause Jenkins use your creds to create a Bitbucket webhook.
 
 Commit and push code. This should trigger you webhook.
 
-Validate in Bitbucket
----------------------
+Validate in Bitbucket, Troubleshooting, Success
+-----------------------------------------------
 
 In your project, Gear icon -> Webhooks. You should see one which
 Jenkins with creds created. If you don't, make sure you saved your
@@ -191,3 +191,19 @@ created in Bitbucket repo, looks good::
   http://172.22.0.3:8080/bitbucket-server-webhook/trigger
 
 Push code again, the new webhook is never fired. Why not?
+Tried modding the repo to get it to rescan the webhook, push, no change.
+I do NOT see the webhook saying it fired.
+
+But if I go to Jenkins I can see it did build for each of my pushes
+after the initial failed webhook!  Some of the Console Output::
+
+  Triggered by Bitbucket webhook due to changes by chris shenton.
+  Lightweight checkout support not available, falling back to full checkout.
+  Checking out com.atlassian.bitbucket.jenkins.internal.scm.BitbucketSCM into /var/jenkins_home/workspace/BitbucketJenkins@script to read Jenkinsfile
+  using credential c1c86c01-e86c-4ee3-8d68-10e0dd0c8531
+  ...
+  Commit message: "Modified bitbucket repo to see if it has to reread config"
+  [Pipeline] }
+  [Pipeline] // node
+  [Pipeline] End of Pipeline
+  Posting build status of SUCCESSFUL to bitbucketFinished: SUCCESS
